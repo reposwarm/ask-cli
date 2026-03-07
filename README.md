@@ -8,15 +8,14 @@ RepoSwarm **writes** architecture docs. `ask` **reads** them.
 
 ## Install
 
-### From source
+```bash
+curl -fsSL https://raw.githubusercontent.com/reposwarm/ask/main/install.sh | sh
+```
 
+Or with Go:
 ```bash
 go install github.com/reposwarm/ask/cmd/ask@latest
 ```
-
-### From release binary
-
-Download from [Releases](https://github.com/reposwarm/ask/releases) and add to your `PATH`.
 
 ## Quick Start
 
