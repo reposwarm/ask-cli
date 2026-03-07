@@ -279,7 +279,7 @@ func runSetup(cmd *cobra.Command, args []string) error {
 
 	// Write docker-compose.yml
 	composePath := filepath.Join(dataDir, "docker-compose.yml")
-	if err := writeComposeFile(composePath, port, archHub); err != nil {
+	if err := writeComposeFile(composePath, port, archHub, dataDir); err != nil {
 		return fmt.Errorf("write compose file: %w", err)
 	}
 	output.Success(fmt.Sprintf("Docker compose written to %s", composePath))
@@ -409,7 +409,7 @@ func writeEnvFile(path string, vars map[string]string) error {
 	return os.WriteFile(path, []byte(strings.Join(lines, "\n")+"\n"), 0600) // 0600 for secrets
 }
 
-func writeComposeFile(path, port, archHub string) error {
+func writeComposeFile(path, port, archHub, dataDir string) error {
 	compose := fmt.Sprintf(`services:
   askbox:
     container_name: askbox
@@ -420,17 +420,17 @@ func writeComposeFile(path, port, archHub string) error {
     environment:
       - ASKBOX_PORT=%s
     volumes:
-      - askbox-arch-hub:/tmp/arch-hub
+      - %s/arch-hub:/tmp/arch-hub
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:%s/health')"]
       interval: 10s
       timeout: 5s
       retries: 5
     restart: unless-stopped
+`, port, dataDir, port)
 
-volumes:
-  askbox-arch-hub:
-`, port, port)
+	// Ensure arch-hub directory exists
+	os.MkdirAll(filepath.Join(dataDir, "arch-hub"), 0755)
 
 	return os.WriteFile(path, []byte(compose), 0644)
 }
