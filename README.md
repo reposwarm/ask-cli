@@ -107,6 +107,36 @@ ask refresh
 ask refresh --url https://github.com/org/arch-hub.git
 ```
 
+### Browse Results
+
+Read architecture docs directly from the arch-hub files:
+
+```bash
+# List repos with architecture docs
+ask results list
+
+# Read a repo's architecture
+ask results read my-api
+ask results read my-api Authentication
+
+# Search across all repos
+ask results search "DynamoDB"
+ask results search "auth" --repo my-api --max 20
+
+# Compare two repos
+ask results diff my-api my-frontend
+
+# Export to markdown files
+ask results export my-api -o my-api.arch.md
+ask results export --all -d ./docs
+```
+
+By default, results are read from the local arch-hub directory (auto-detected from askbox or common paths). Override with `--path`:
+
+```bash
+ask results list --path /path/to/arch-hub
+```
+
 ### Configuration
 
 ```bash
