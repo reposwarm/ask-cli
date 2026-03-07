@@ -1,4 +1,4 @@
-module github.com/reposwarm/ask
+module github.com/reposwarm/ask-cli
 
 go 1.23.0
 

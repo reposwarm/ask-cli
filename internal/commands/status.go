@@ -5,8 +5,8 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/reposwarm/ask/internal/client"
-	"github.com/reposwarm/ask/internal/output"
+	"github.com/reposwarm/ask-cli/internal/client"
+	"github.com/reposwarm/ask-cli/internal/output"
 )
 
 var statusCmd = &cobra.Command{

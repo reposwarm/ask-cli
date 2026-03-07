@@ -7,9 +7,9 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"github.com/reposwarm/ask/internal/client"
-	"github.com/reposwarm/ask/internal/config"
-	"github.com/reposwarm/ask/internal/output"
+	"github.com/reposwarm/ask-cli/internal/client"
+	"github.com/reposwarm/ask-cli/internal/config"
+	"github.com/reposwarm/ask-cli/internal/output"
 )
 
 var resultsCmd = &cobra.Command{

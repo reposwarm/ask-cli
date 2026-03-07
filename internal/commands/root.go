@@ -3,7 +3,7 @@ package commands
 import (
 	"github.com/spf13/cobra"
 
-	"github.com/reposwarm/ask/internal/output"
+	"github.com/reposwarm/ask-cli/internal/output"
 )
 
 var version = "dev"

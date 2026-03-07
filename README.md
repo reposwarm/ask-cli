@@ -9,12 +9,12 @@ RepoSwarm **writes** architecture docs. `ask` **reads** them.
 ## Install
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/reposwarm/ask/main/install.sh | sh
+curl -fsSL https://raw.githubusercontent.com/reposwarm/ask-cli/main/install.sh | sh
 ```
 
 Or with Go:
 ```bash
-go install github.com/reposwarm/ask/cmd/ask@latest
+go install github.com/reposwarm/ask-cli/cmd/ask@latest
 ```
 
 ## Quick Start
@@ -218,7 +218,7 @@ ask setup    # Interactive: picks provider, writes env, starts Docker
 docker run -d --name askbox \
   -p 8082:8082 \
   -e ARCH_HUB_URL=https://github.com/org/arch-hub.git \
-  ghcr.io/reposwarm/askbox:latest
+  ghcr.io/reposwarm/ask-clibox:latest
 ```
 
 **With RepoSwarm:**

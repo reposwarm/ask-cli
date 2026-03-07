@@ -1,13 +1,13 @@
 #!/bin/sh
 # ask CLI installer
-# Usage: curl -fsSL https://raw.githubusercontent.com/reposwarm/ask/main/install.sh | sh
+# Usage: curl -fsSL https://raw.githubusercontent.com/reposwarm/ask-cli/main/install.sh | sh
 #
 # Installs the latest ask binary to /usr/local/bin (or ~/.local/bin if no sudo).
 # Supports Linux and macOS, amd64 and arm64.
 
 set -e
 
-REPO="reposwarm/ask"
+REPO="reposwarm/ask-cli"
 BINARY="ask"
 INSTALL_DIR="/usr/local/bin"
 

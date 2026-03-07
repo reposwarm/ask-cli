@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"github.com/reposwarm/ask/internal/config"
+	"github.com/reposwarm/ask-cli/internal/config"
 )
 
 // loadConfig is a helper used by commands.
