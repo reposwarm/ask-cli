@@ -32,15 +32,44 @@ func NewResultsReader(path string) *ResultsReader {
 }
 
 // ListRepos returns all repos with .arch.md files.
+// Supports both flat layout (repo.arch.md in root) and nested layout (repo/repo.arch.md).
 func (r *ResultsReader) ListRepos() ([]RepoResult, error) {
 	entries, err := os.ReadDir(r.ArchHubPath)
 	if err != nil {
 		return nil, fmt.Errorf("cannot read arch-hub at %s: %w", r.ArchHubPath, err)
 	}
 
+	seen := map[string]bool{}
 	var repos []RepoResult
+
+	// Check for flat layout: *.arch.md files directly in root
+	rootArchFiles, _ := filepath.Glob(filepath.Join(r.ArchHubPath, "*.arch.md"))
+	for _, f := range rootArchFiles {
+		base := filepath.Base(f)
+		repoName := strings.TrimSuffix(base, ".arch.md")
+		if seen[repoName] {
+			continue
+		}
+		seen[repoName] = true
+
+		data, err := os.ReadFile(f)
+		if err != nil {
+			continue
+		}
+		sections := parseSections(string(data))
+		repos = append(repos, RepoResult{
+			Name:       repoName,
+			SourcePath: r.ArchHubPath,
+			Sections:   sections,
+		})
+	}
+
+	// Check for nested layout: repo-dir/*.arch.md
 	for _, e := range entries {
 		if !e.IsDir() {
+			continue
+		}
+		if seen[e.Name()] {
 			continue
 		}
 		archFiles, _ := filepath.Glob(filepath.Join(r.ArchHubPath, e.Name(), "*.arch.md"))
@@ -58,6 +87,7 @@ func (r *ResultsReader) ListRepos() ([]RepoResult, error) {
 				repo.Sections = append(repo.Sections, sections...)
 			}
 			repos = append(repos, repo)
+			seen[e.Name()] = true
 		}
 	}
 
@@ -66,10 +96,26 @@ func (r *ResultsReader) ListRepos() ([]RepoResult, error) {
 }
 
 // ReadRepo returns the full content for a specific repo.
+// Checks both flat (root/name.arch.md) and nested (root/name/*.arch.md) layouts.
 func (r *ResultsReader) ReadRepo(name string) (*RepoResult, error) {
+	// Try flat layout first: name.arch.md in root
+	flatPath := filepath.Join(r.ArchHubPath, name+".arch.md")
+	if _, err := os.Stat(flatPath); err == nil {
+		data, err := os.ReadFile(flatPath)
+		if err != nil {
+			return nil, fmt.Errorf("reading %s: %w", flatPath, err)
+		}
+		return &RepoResult{
+			Name:       name,
+			SourcePath: r.ArchHubPath,
+			Sections:   parseSections(string(data)),
+		}, nil
+	}
+
+	// Try nested layout: name/*.arch.md
 	repoDir := filepath.Join(r.ArchHubPath, name)
 	if _, err := os.Stat(repoDir); os.IsNotExist(err) {
-		return nil, fmt.Errorf("repo %q not found in arch-hub", name)
+		return nil, fmt.Errorf("repo %q not found in arch-hub (checked %s.arch.md and %s/)", name, name, name)
 	}
 
 	archFiles, _ := filepath.Glob(filepath.Join(repoDir, "*.arch.md"))
