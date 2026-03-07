@@ -370,10 +370,25 @@ func buildEnvVars(provider, region, authMethod, model, apiKey, awsKey, awsSecret
 	}
 
 	if model != "" {
-		vars["ANTHROPIC_MODEL"] = model
+		// Resolve alias to full model ID
+		resolved := config.ResolveModelAlias(provider, model)
+		vars["ANTHROPIC_MODEL"] = resolved
 	}
 	if archHub != "" {
 		vars["ARCH_HUB_URL"] = archHub
+	}
+
+	// Include GITHUB_TOKEN for private arch-hub repos
+	// Check env, then RepoSwarm worker.env
+	ghToken := os.Getenv("GITHUB_TOKEN")
+	if ghToken == "" {
+		rsVars := config.DetectRepoSwarmConfig()
+		if rsVars != nil {
+			ghToken = rsVars["GITHUB_TOKEN"]
+		}
+	}
+	if ghToken != "" {
+		vars["GITHUB_TOKEN"] = ghToken
 	}
 
 	return vars
@@ -386,7 +401,7 @@ func writeEnvFile(path string, vars map[string]string) error {
 		"CLAUDE_PROVIDER", "CLAUDE_CODE_USE_BEDROCK",
 		"AWS_REGION", "AWS_ACCESS_KEY_ID", "AWS_SECRET_ACCESS_KEY", "AWS_PROFILE", "AWS_BEARER_TOKEN_BEDROCK",
 		"ANTHROPIC_API_KEY", "ANTHROPIC_MODEL", "ANTHROPIC_BASE_URL",
-		"LITELLM_API_KEY", "ARCH_HUB_URL",
+		"LITELLM_API_KEY", "ARCH_HUB_URL", "GITHUB_TOKEN",
 	}
 	for _, k := range keyOrder {
 		if v, ok := vars[k]; ok {

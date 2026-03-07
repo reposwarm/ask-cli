@@ -154,6 +154,11 @@ func (c *Config) ModelID() string {
 }
 
 // resolveModelAlias expands short aliases to full model IDs.
+// ResolveModelAlias resolves a model alias (sonnet, opus, haiku) to full model ID.
+func ResolveModelAlias(provider, alias string) string {
+	return resolveModelAlias(provider, alias)
+}
+
 func resolveModelAlias(provider, alias string) string {
 	if provider == "bedrock" {
 		switch alias {
