@@ -273,6 +273,35 @@ func runSetup(cmd *cobra.Command, args []string) error {
 
 	// Write askbox.env (secrets go here, NOT in config.json)
 	envVars := buildEnvVars(provider, region, authMethod, model, apiKey, awsKey, awsSecret, awsProfile, bedrockAPIKey, proxyURL, proxyKey, archHub)
+
+	// Ensure GITHUB_TOKEN is set for private GitHub arch-hub repos
+	if archHub != "" && strings.Contains(archHub, "github.com") && envVars["GITHUB_TOKEN"] == "" {
+		// Try harder: check all common locations
+		ghToken := os.Getenv("GITHUB_TOKEN")
+		if ghToken == "" {
+			ghToken = os.Getenv("GH_TOKEN")
+		}
+		if ghToken == "" {
+			rsVars := config.DetectRepoSwarmConfig()
+			if rsVars != nil {
+				ghToken = rsVars["GITHUB_TOKEN"]
+			}
+		}
+		if ghToken != "" {
+			envVars["GITHUB_TOKEN"] = ghToken
+		} else if !setupNonInterFlag && !output.AgentMode {
+			output.Warning("Your arch-hub appears to be on GitHub but no GITHUB_TOKEN was found.")
+			output.Info("  Private repos need a token for cloning.")
+			ghToken = promptString(reader, "GitHub Token (blank to skip)", "")
+			if ghToken != "" {
+				envVars["GITHUB_TOKEN"] = ghToken
+			}
+		} else {
+			output.Warning("No GITHUB_TOKEN found — private arch-hub repos will fail to clone.")
+			output.Info("  Set it with: echo 'GITHUB_TOKEN=ghp_xxx' >> " + filepath.Join(dataDir, "askbox.env"))
+		}
+	}
+
 	envPath := filepath.Join(dataDir, "askbox.env")
 	if err := writeEnvFile(envPath, envVars); err != nil {
 		return fmt.Errorf("write env file: %w", err)

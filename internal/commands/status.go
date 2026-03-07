@@ -27,8 +27,10 @@ var statusCmd = &cobra.Command{
 		}
 
 		archStatus := "❌ not loaded"
-		if health.ArchHubReady {
+		if health.ArchHubReady && health.ArchHubRepos > 0 {
 			archStatus = fmt.Sprintf("✅ ready (%d repos)", health.ArchHubRepos)
+		} else if health.ArchHubReady && health.ArchHubRepos == 0 {
+			archStatus = "⚠️  loaded but empty (0 repos — no .arch.md files found)"
 		}
 
 		fmt.Printf("🏥 Askbox Server Status\n\n")

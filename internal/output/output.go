@@ -48,6 +48,14 @@ func Info(msg string) {
 	fmt.Println(msg)
 }
 
+// Warning prints a warning message.
+func Warning(msg string) {
+	if JSONMode {
+		return
+	}
+	fmt.Fprintf(os.Stderr, "⚠️  %s\n", msg)
+}
+
 // StatusLine prints an overwritable status line (suppressed in JSON/agent mode).
 func StatusLine(msg string) {
 	if JSONMode || AgentMode {
