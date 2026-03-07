@@ -21,21 +21,21 @@ Download from [Releases](https://github.com/reposwarm/ask/releases) and add to y
 ## Quick Start
 
 ```bash
-# Point to your askbox server (default: localhost:8082)
-ask config set serverUrl http://localhost:8082
+# Set up a local askbox (interactive — configures provider, starts Docker)
+ask setup
+
+# Or non-interactive
+ask setup --provider bedrock --region us-east-1 --model sonnet \
+  --arch-hub https://github.com/org/arch-hub.git
 
 # Check server status
 ask status
 
 # Ask a question
 ask "how does authentication work across services?"
-
-# Scope to specific repos
-ask --repos api,billing "how do these services communicate?"
-
-# Use a specific adapter
-ask --adapter strands "what databases are used?"
 ```
+
+If you already have [RepoSwarm](https://github.com/reposwarm/reposwarm-cli) installed, `ask setup` auto-detects its provider configuration and offers to reuse it.
 
 ## Usage
 
@@ -123,6 +123,21 @@ ask config set adapter strands
 ask config set model us.anthropic.claude-sonnet-4-20250514-v1:0
 ```
 
+### Docker Management
+
+```bash
+ask setup              # Interactive setup (provider + Docker)
+ask up                 # Start askbox container
+ask down               # Stop askbox container
+ask logs               # View logs
+ask logs -f            # Follow logs
+```
+
+`ask setup` writes:
+- `~/.config/ask/config.json` — CLI settings (no secrets)
+- `~/.ask/askbox.env` — Provider credentials (mode 0600)
+- `~/.ask/docker-compose.yml` — Docker Compose for askbox
+
 Config is stored at `~/.config/ask/config.json`.
 
 **Resolution order** (highest wins):
@@ -162,15 +177,23 @@ Config is stored at `~/.config/ask/config.json`.
 
 ## Askbox Server
 
-The askbox server is a separate component. See [reposwarm-askbox](https://github.com/reposwarm/reposwarm-askbox) for setup.
+The askbox server is a separate component. See [reposwarm-askbox](https://github.com/reposwarm/reposwarm-askbox) for details.
 
-**Quick start with Docker:**
+**Standalone (via `ask setup`):**
+```bash
+ask setup    # Interactive: picks provider, writes env, starts Docker
+```
+
+**Manual Docker:**
 ```bash
 docker run -d --name askbox \
   -p 8082:8082 \
   -e ARCH_HUB_URL=https://github.com/org/arch-hub.git \
   ghcr.io/reposwarm/askbox:latest
 ```
+
+**With RepoSwarm:**
+Askbox runs automatically as part of the RepoSwarm Docker Compose stack.
 
 ## RepoSwarm Integration
 

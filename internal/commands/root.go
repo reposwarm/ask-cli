@@ -21,11 +21,22 @@ var rootCmd = &cobra.Command{
 Ask questions about your codebase architecture using AI. Queries an askbox
 server that holds your .arch.md files and uses LLMs to reason across repos.
 
+Quick start:
+  ask setup                                    # Set up local askbox
+  ask "how does auth work across services?"    # Ask a question
+
+Usage:
   ask "how does auth work across services?"
   ask --repos api,billing "how do they communicate?"
   ask list --status completed
   ask status
-  ask refresh --url https://github.com/org/arch-hub.git`,
+  ask refresh --url https://github.com/org/arch-hub.git
+
+Docker management:
+  ask setup        Set up local askbox with provider config
+  ask up           Start the local askbox container
+  ask down         Stop it
+  ask logs -f      Tail logs`,
 }
 
 func init() {

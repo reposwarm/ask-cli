@@ -28,6 +28,33 @@ var configShowCmd = &cobra.Command{
 		fmt.Printf("  serverUrl:  %s\n", cfg.ServerURL)
 		fmt.Printf("  adapter:    %s\n", valueOrDefault(cfg.Adapter, "(default)"))
 		fmt.Printf("  model:      %s\n", valueOrDefault(cfg.Model, "(default)"))
+
+		if cfg.Provider != nil && cfg.Provider.Name != "" {
+			fmt.Printf("\n  Provider:\n")
+			fmt.Printf("    name:       %s\n", cfg.Provider.Name)
+			if cfg.Provider.Region != "" {
+				fmt.Printf("    region:     %s\n", cfg.Provider.Region)
+			}
+			if cfg.Provider.AuthMethod != "" {
+				fmt.Printf("    auth:       %s\n", cfg.Provider.AuthMethod)
+			}
+			if cfg.Provider.Model != "" {
+				fmt.Printf("    model:      %s\n", cfg.Provider.Model)
+			}
+			if cfg.Provider.ProxyURL != "" {
+				fmt.Printf("    proxyUrl:   %s\n", cfg.Provider.ProxyURL)
+			}
+		}
+
+		if cfg.ArchHub != nil && cfg.ArchHub.URL != "" {
+			fmt.Printf("\n  Arch-hub:\n")
+			fmt.Printf("    url:        %s\n", cfg.ArchHub.URL)
+			if cfg.ArchHub.Branch != "" {
+				fmt.Printf("    branch:     %s\n", cfg.ArchHub.Branch)
+			}
+		}
+
+		fmt.Printf("\n  Data dir:   %s\n", config.DataDir())
 		return nil
 	},
 }
