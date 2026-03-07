@@ -55,7 +55,7 @@ jobs:
           GOARCH: ${{ matrix.goarch }}
         run: |
           VERSION=${GITHUB_REF#refs/tags/}
-          go build -ldflags "-X main.version=$VERSION" -o ask-${{ matrix.suffix }} ./cmd/ask
+          go build -ldflags "-X main.Version=$VERSION" -o ask-${{ matrix.suffix }} ./cmd/ask
 
       - name: Upload release asset
         uses: softprops/action-gh-release@v2

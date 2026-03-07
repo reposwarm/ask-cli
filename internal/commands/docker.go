@@ -62,6 +62,7 @@ var downCmd = &cobra.Command{
 }
 
 var logsFollowFlag bool
+var logsTailFlag string
 
 var logsCmd = &cobra.Command{
 	Use:   "logs",
@@ -71,6 +72,9 @@ var logsCmd = &cobra.Command{
 		cmdArgs := []string{"compose", "logs"}
 		if logsFollowFlag {
 			cmdArgs = append(cmdArgs, "-f")
+		}
+		if logsTailFlag != "" {
+			cmdArgs = append(cmdArgs, "--tail", logsTailFlag)
 		}
 		cmdArgs = append(cmdArgs, "askbox")
 		c := exec.Command("docker", cmdArgs...)
@@ -83,6 +87,7 @@ var logsCmd = &cobra.Command{
 
 func init() {
 	logsCmd.Flags().BoolVarP(&logsFollowFlag, "follow", "f", false, "Follow log output")
+	logsCmd.Flags().StringVarP(&logsTailFlag, "tail", "n", "", "Number of lines to show from end of logs")
 
 	rootCmd.AddCommand(upCmd)
 	rootCmd.AddCommand(downCmd)

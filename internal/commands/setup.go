@@ -15,16 +15,17 @@ import (
 )
 
 var (
-	setupProviderFlag   string
-	setupRegionFlag     string
-	setupAuthFlag       string
-	setupModelFlag      string
-	setupProxyURLFlag   string
-	setupProxyKeyFlag   string
-	setupArchHubFlag    string
-	setupPortFlag       string
-	setupNonInterFlag   bool
-	setupSkipDockerFlag bool
+	setupProviderFlag    string
+	setupRegionFlag      string
+	setupAuthFlag        string
+	setupModelFlag       string
+	setupProxyURLFlag    string
+	setupProxyKeyFlag    string
+	setupArchHubFlag     string
+	setupPortFlag        string
+	setupGitHubTokenFlag string
+	setupNonInterFlag    bool
+	setupSkipDockerFlag  bool
 )
 
 var setupCmd = &cobra.Command{
@@ -53,6 +54,7 @@ func init() {
 	setupCmd.Flags().StringVar(&setupProxyURLFlag, "proxy-url", "", "LiteLLM proxy URL")
 	setupCmd.Flags().StringVar(&setupProxyKeyFlag, "proxy-key", "", "LiteLLM proxy API key")
 	setupCmd.Flags().StringVar(&setupArchHubFlag, "arch-hub", "", "Arch-hub git URL")
+	setupCmd.Flags().StringVar(&setupGitHubTokenFlag, "github-token", "", "GitHub token for private arch-hub repos")
 	setupCmd.Flags().StringVar(&setupPortFlag, "port", "8082", "Askbox port")
 	setupCmd.Flags().BoolVar(&setupNonInterFlag, "non-interactive", false, "Non-interactive mode (requires flags)")
 	setupCmd.Flags().BoolVar(&setupSkipDockerFlag, "skip-docker", false, "Configure only, don't start Docker")
@@ -379,8 +381,11 @@ func buildEnvVars(provider, region, authMethod, model, apiKey, awsKey, awsSecret
 	}
 
 	// Include GITHUB_TOKEN for private arch-hub repos
-	// Check env, then RepoSwarm worker.env
-	ghToken := os.Getenv("GITHUB_TOKEN")
+	// Priority: --github-token flag > env > RepoSwarm worker.env
+	ghToken := setupGitHubTokenFlag
+	if ghToken == "" {
+		ghToken = os.Getenv("GITHUB_TOKEN")
+	}
 	if ghToken == "" {
 		rsVars := config.DetectRepoSwarmConfig()
 		if rsVars != nil {
