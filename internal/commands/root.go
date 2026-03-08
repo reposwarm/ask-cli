@@ -14,8 +14,9 @@ func SetVersion(v string) {
 }
 
 var rootCmd = &cobra.Command{
-	Use:   "ask",
-	Short: "Query architecture knowledge from your codebase",
+	Use:     "ask",
+	Short:   "Query architecture knowledge from your codebase",
+	Version: version,
 	Long: `ask — the read side of RepoSwarm.
 
 Ask questions about your codebase architecture using AI. Queries an askbox
