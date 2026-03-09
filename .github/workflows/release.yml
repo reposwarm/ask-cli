@@ -1,32 +1,20 @@
-name: release
+name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_run:
+    workflows: [test]
+    types: [completed]
+    branches: [main]
 
-permissions:
-  contents: write
+env:
+  VERSION_BASE: "0.2"
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.24'
-
-      - name: Vet
-        run: go vet ./...
-
-      - name: Test
-        run: go test ./... -v -count=1
-
   release:
-    needs: test
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     strategy:
       matrix:
         include:
@@ -42,6 +30,7 @@ jobs:
           - goos: darwin
             goarch: arm64
             suffix: darwin-arm64
+
     steps:
       - uses: actions/checkout@v4
 
@@ -49,16 +38,29 @@ jobs:
         with:
           go-version: '1.24'
 
+      - name: Set version
+        id: version
+        run: |
+          VERSION="${VERSION_BASE}.${{ github.run_number }}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Build
         env:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
         run: |
-          VERSION="${GITHUB_REF_NAME}"
-          echo "Building version: $VERSION"
-          go build -ldflags "-s -w -X main.Version=$VERSION" -o ask-${{ matrix.suffix }} ./cmd/ask
+          go build -ldflags "-s -w -X main.Version=${{ steps.version.outputs.version }}" \
+            -o ask-${{ matrix.suffix }} ./cmd/ask
 
       - name: Upload release asset
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: v${{ steps.version.outputs.version }}
+          make_latest: true
           files: ask-${{ matrix.suffix }}
+          body: |
+            ## ask CLI v${{ steps.version.outputs.version }}
+
+            Install: `curl -fsSL https://raw.githubusercontent.com/reposwarm/ask-cli/main/install.sh | sh`
+            Upgrade: re-run the install command
